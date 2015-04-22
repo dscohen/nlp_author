@@ -1,4 +1,8 @@
-The `data` directory should contain the Slate `.anc` and `.txt` files. You can get them by going to http://www.anc.org/data/oanc/download/, getting the zip or tgz, and extracting the `/OANC-GrAF/data/written_1/journal/slate/` folder to this directory. Then, run
-  1. `mkdir data`
-  2. `mv slate/*/*.anc slate/*/*.txt data`
-  3. `rm -rf slate
+The `data` directory should contain the Slate `.anc` and `.txt` files. You can get them doing:
+  1. `curl -O http://www.anc.org/OANC/OANC_GrAF.tgz`
+  2. `tar -xvf OANC_GrAF.tgz OANC-GrAF/data/written_1/journal/slate/` (Untested)
+  3. `mkdir data`
+  4. `mv slate/*/*.anc slate/*/*.txt data`
+  5. `rm -rf slate`
+
+You may not want to delete the rest of the xml files, since they contain POS tags and other info.
