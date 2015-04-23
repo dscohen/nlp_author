@@ -3,6 +3,7 @@
 # Please refer to the documentation for information on how to create and manage
 # your spiders.
 import scrapy
+from amazon.items import AmazonItem
 from scrapy.http import Request
 import re
 from scrapy.spider import BaseSpider
@@ -18,8 +19,8 @@ class AmazonSpider(scrapy.Spider):
             ]
 
     def parse(self, response):
-        hxs = HtmlXPathSelector(response)
-        links = hxs.select("//a/@href").extract()
+        #hxs = HtmlXPathSelector(response)
+        links = response.selector.xpath("//a/@href").extract()
         #We stored already crawled links in this list
         crawledLinks = []
         #Pattern to check proper link
@@ -30,12 +31,14 @@ class AmazonSpider(scrapy.Spider):
             if linkPattern.match(link) and not link in crawledLinks:
                 crawledLinks.append(link)
                 yield Request(link, self.parse)
-        titles	= hxs.select('//h1[@class="post_title"]/a/text()').extract()
+        #titles	= hxs.select('//h1[@class="post_title"]/a/text()').extract()
+        titles = response.xpath('//div[@class="tiny"]/a/@href')
+        print titles
         for title in titles:
-            item 			= AmazonItem()
-            item["title"] 	= title
+            item         = AmazonItem()
             print title
+            item["link"] = title
             yield item
-        filename = "top_reviewers"
-        with open(filename, 'a') as f:
-            f.write(response.body)
+        #filename = "top_reviewers"
+        #with open(filename, 'a') as f:
+            #f.write(response.body)
