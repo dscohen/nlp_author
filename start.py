@@ -9,10 +9,11 @@ import argparse
 import numpy
 import random
 import slate.provider
+import blog.provider
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-s", "--source",    choices=["slate", "amazon"],
+    parser.add_argument("-s", "--source",    choices=["slate", "amazon", "blog"],
         required=True, help="Source to use for training")
     parser.add_argument("-a", "--algorithm", choices=["bayes", "svm", "lsvc"],
         required=True, help="Machine learning algorithm")
@@ -25,6 +26,8 @@ if __name__ == "__main__":
 
     if args.source == "slate":
         provider = slate.provider.Provider()
+    elif args.source == "blog":
+        provider = blog.provider.Provider()
 
     r = provider.get()
 
