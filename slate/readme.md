@@ -7,5 +7,5 @@ The `data` directory should contain the Slate `.anc` and `.txt` files. You can g
 
 You may not want to delete the rest of the xml files, since they contain POS tags and other info.
 Note: If arg list too long for mv, replace with:
-  3a. find OANC-GrAF/data/written_1/journal/slate/*/ -name "*.anc" -exec mv "{}" data \;
-  3b. find OANC-GrAF/data/written_1/journal/slate/*/ -name "*.txt" -exec mv "{}" data \;
+  3. `find OANC-GrAF/data/written_1/journal/slate/*/ -name "*.anc" -exec mv "{}" data \;`
+  3. `find OANC-GrAF/data/written_1/journal/slate/*/ -name "*.txt" -exec mv "{}" data \;`
