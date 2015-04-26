@@ -24,7 +24,7 @@ class Provider:
         data = []
         tags = []
 
-        for txt in glob.glob(data_path + "*.txt"):
+        for txt in sorted(glob.glob(data_path + "*.txt")):
             filename = txt[len(data_path):]
             if filename in filename_to_author:
                 author = filename_to_author[filename]

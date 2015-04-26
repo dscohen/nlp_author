@@ -6,6 +6,7 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
 import argparse
 import numpy
+import random
 import slate.provider
 
 if __name__ == "__main__":
@@ -25,8 +26,16 @@ if __name__ == "__main__":
         provider = slate.provider.Provider()
 
     r = provider.get()
+
     pct_train = .8
     num_train = int(len(r["data"]) * pct_train)
+
+    random.seed(42)
+    indices = range(len(r["data"]))
+    random.shuffle(indices)
+
+    r["data"] = [r["data"][i] for i in indices]
+    r["tags"] = [r["tags"][i] for i in indices]
 
     train_data  = r["data"][:num_train]
     train_tags  = r["tags"][:num_train]
