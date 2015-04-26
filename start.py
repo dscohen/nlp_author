@@ -2,6 +2,7 @@ from sklearn import metrics
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.linear_model import SGDClassifier
+from sklearn import svm
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
 import argparse
@@ -13,7 +14,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--source",    choices=["slate", "amazon"],
         required=True, help="Source to use for training")
-    parser.add_argument("-a", "--algorithm", choices=["bayes", "svm"],
+    parser.add_argument("-a", "--algorithm", choices=["bayes", "svm", "lsvc"],
         required=True, help="Machine learning algorithm")
     args = parser.parse_args()
 
@@ -57,6 +58,12 @@ if __name__ == "__main__":
             ('vect', CountVectorizer()),
             ('tfidf', TfidfTransformer()),
             ('clf', SGDClassifier(loss='hinge', penalty='l2', alpha=1e-3, n_iter=5, random_state=42)),
+        ])
+    elif args.algorithm == "lsvc":
+        clf = Pipeline([
+            ('vect', CountVectorizer()),
+            ('tfidf', TfidfTransformer()),
+            ('clf', svm.LinearSVC()),
         ])
 
     clf = clf.fit(train_data, train_tags)
