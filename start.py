@@ -30,11 +30,11 @@ if __name__ == "__main__":
 
     train_data  = r["data"][:num_train]
     train_tags  = r["tags"][:num_train]
-    train_names = r["idx"][:num_train]
 
     test_data  = r["data"][num_train:]
     test_tags  = r["tags"][num_train:]
-    test_names = r["idx"][:num_train]
+
+    names = r["idx"]
 
     # http://scikit-learn.org/stable/tutorial/text_analytics/working_with_text_data.html
     if args.algorithm == "bayes":
@@ -53,5 +53,5 @@ if __name__ == "__main__":
     clf = clf.fit(train_data, train_tags)
     predicted = clf.predict(test_data)
 
-    print(metrics.classification_report(test_tags, predicted, target_names=test_names))
+    print(metrics.classification_report(test_tags, predicted, target_names=names))
     print "%s accuracy: %.2f" % (args.algorithm.title(), numpy.mean(predicted == test_tags))
