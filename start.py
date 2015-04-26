@@ -1,5 +1,6 @@
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.linear_model import SGDClassifier
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
 import argparse
@@ -8,8 +9,10 @@ import slate.provider
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-s", "--source",    choices=["slate", "amazon"], required=True, help="Source to use for training")
-    parser.add_argument("-a", "--algorithm", choices=["bayes"],           required=True, help="Machine learning algorithm")
+    parser.add_argument("-s", "--source",    choices=["slate", "amazon"],
+        required=True, help="Source to use for training")
+    parser.add_argument("-a", "--algorithm", choices=["bayes", "svm"],
+        required=True, help="Machine learning algorithm")
     args = parser.parse_args()
 
     # A provider should have a method get(), which returns a dict with three entries:
@@ -38,8 +41,14 @@ if __name__ == "__main__":
             ('tfidf', TfidfTransformer()),
             ('clf', MultinomialNB()),
         ])
-        clf = clf.fit(train_data, train_tags)
+    elif args.algorithm == "svm":
+        clf = Pipeline([
+            ('vect', CountVectorizer()),
+            ('tfidf', TfidfTransformer()),
+            ('clf', SGDClassifier(loss='hinge', penalty='l2', alpha=1e-3, n_iter=5, random_state=42)),
+        ])
 
+    clf = clf.fit(train_data, train_tags)
     predicted = clf.predict(test_data)
 
     print "%s accuracy: %.2f" % (args.algorithm.title(), numpy.mean(predicted == test_tags))
