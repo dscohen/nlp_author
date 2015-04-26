@@ -29,6 +29,5 @@ class Provider:
                 data.append(text)
                 tags.append(author_idx)
 
-        idx_to_author = {v: k for k, v in authors_idx.iteritems()}
-
+        idx_to_author = sorted(authors_idx.keys(), key=lambda x: authors_idx[x])
         return {"data": data, "tags": tags, "idx": idx_to_author}
