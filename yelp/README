@@ -1,0 +1,6 @@
+1. First run "$ python convert.py data/yelp_academic_dataset_review.json"
+
+Currently, get_yelp_id() will return a dict such that:
+
+dict["yelp business id"] -> rest\_id class, where each data field is a
+list where each entry's index corresponds to the date field's index.
