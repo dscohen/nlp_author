@@ -5,7 +5,7 @@ from sklearn.linear_model import SGDClassifier
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-s", "--source",    choices=["slate", "amazon"],
+    parser.add_argument("-s", "--source",    choices=["slate", "amazon", "blog"],
         required=True, help="Source to use for training")
     parser.add_argument("-a", "--algorithm", choices=["bayes", "svm", "lsvc"],
         required=True, help="Machine learning algorithm")
@@ -13,8 +13,15 @@ if __name__ == "__main__":
 
     if args.source == "slate":
         data = slate_data.get_data()
-        test_data = data[1]
-        train_data = data[0]
+    if args.source == "yelp":
+        data = yelp_data.get_data()
+    if args.source == "amazon":
+        data = amazon_data.get_data()
+    if args.source == "blog":
+        data = blog_data.get_data()
+
+    test_data = data[1]
+    train_data = data[0]
 
     if args.algorithm == "bayes":
         classif = SklearnClassifier(MultinomialNB()).train(train_data)

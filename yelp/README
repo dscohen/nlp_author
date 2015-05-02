@@ -6,3 +6,6 @@ dict["yelp business id"] -> rest_id class, where each data field is a
 list where each entry's index corresponds to the date field's index. So to get the date of the 2nd review, it would be rest_id.rev_dates[1]
 
 
+To run embedding.py, must first run in python
+>>>import nltk
+>>>nltk.download('punkt')
