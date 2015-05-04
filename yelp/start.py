@@ -61,8 +61,7 @@ def get_data():
                 "avg_two_star_grades": avg_grades[1],
                 "avg_three_star_grades": avg_grades[2]
             }
-            # TODO: Predict more than just the # of 1 star ratings
-            tag = r.f_stars[-1][0] # Use the last grade as the tag 
+            tag = r.f_stars[-1] # Use the last grade as the tag
             result.append((features, tag))
     return result
 
