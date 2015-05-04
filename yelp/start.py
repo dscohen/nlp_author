@@ -73,7 +73,7 @@ def print_results(results):
             reader = csv.reader(f)
             out = csv.writer(o)
             header = reader.next()
-
+            out.writerow(header)
             for result, row in zip(results, reader):
                 row[3], row[4], row[5] = int(result[0]), int(result[1]), int(result[2])
                 out.writerow(row)
