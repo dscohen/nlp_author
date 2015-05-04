@@ -1,4 +1,7 @@
 import csv
+import gensim
+from nltk import word_tokenize
+import numpy as np
 
 class Restaurant:
     def __init__(self, rest_id):
@@ -9,7 +12,7 @@ class Restaurant:
         self.reviews = []
         self.rev_dates = []
 
-def get_yelp_id(filename):
+def get_yelp_id(filename="yelp/data/train_labels.csv"):
     '''returns dict of yelp_id -> Restaurant class'''
     yelp_rest = {}
     tr = {}
@@ -36,7 +39,7 @@ def get_yelp_id(filename):
 
     return yelp_rest
 
-def get_data(filename = "yelp/data/train_labels.csv"):
+def get_data(filename = "yelp/data/train_labels.csv", embedding = False):
     "Build a list of tuples of the form (features, tag) for the Yelp data."
     restaurants = get_yelp_id(filename)
     result = []
@@ -47,6 +50,15 @@ def get_data(filename = "yelp/data/train_labels.csv"):
             # Count of "dirty" and/or "clean" words in reviews and/or tags
             avg_rating = sum(r.y_star) / float(len(r.y_star))
             yelp_reviews = "\n".join(r.reviews)
+            if embedding != False:
+                yelp_embeddings = []
+                yelp_tokens = word_tokenize(yelp_reviews.decode('utf-8'))
+                model = gensim.models.Word2Vec.load("yelp/word2vecmodel")
+                for token in yelp_tokens:
+                    try:
+                        yelp_embeddings.append(model[token])
+                    except: Exception
+	        yelp_reviews = np.asarray(yelp_embeddings)
             grades = [map(lambda x: x[i], r.f_stars) for i in range(3)]  # list of lists of number of stars
             if len(grades[0]) == 0 and len(grades[1]) == 0 and len(grades[2]) == 0:
                 avg_grades = [0, 0, 0]
