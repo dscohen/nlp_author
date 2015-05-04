@@ -9,8 +9,7 @@ class Restaurant:
         self.reviews = []
         self.rev_dates = []
 
-def get_yelp_id(filename):
-    '''returns dict of yelp_id -> Restaurant class'''
+def read_r_id_to_y_id():
     yelp_rest = {}
     tr = {}
     with open("yelp/data/restaurant_ids_to_yelp_ids.csv") as f:
@@ -19,6 +18,11 @@ def get_yelp_id(filename):
         for row in reader:
             yelp_rest[row[1]] = Restaurant(row[0])
             tr[row[0]] = row[1]
+    return tr, yelp_rest
+
+def get_yelp_id(filename):
+    '''returns dict of yelp_id -> Restaurant class'''
+    tr, yelp_rest = read_r_id_to_y_id()
     with open(filename) as f:
         reader = csv.reader(f)
         header = reader.next()
@@ -45,12 +49,7 @@ def get_data(filename = "yelp/data/train_labels.csv"):
     # Restaurant ID, Date of inspection
 
     # Tag: result of inspection on above date
-    tr = {}
-    with open("yelp/data/restaurant_ids_to_yelp_ids.csv") as f:
-        reader = csv.reader(f)
-        header = reader.next()
-        for row in reader:
-            tr[row[0]] = row[1]
+    tr, _ = read_r_id_to_y_id()
 
     restaurants = get_yelp_id(filename)
     result = []
