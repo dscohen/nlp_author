@@ -38,13 +38,31 @@ def get_yelp_id(filename):
 
 def get_data(filename = "yelp/data/train_labels.csv"):
     "Build a list of tuples of the form (features, tag) for the Yelp data."
+
+    # Possible features:
+    # Average yelp rating, concatenation of all reviews, average of previous inspection grades
+    # Count of "dirty" and/or "clean" words in reviews and/or tags,
+    # Restaurant ID, Date of inspection
+
+    # Tag: result of inspection on above date
+    tr = {}
+    with open("yelp/data/restaurant_ids_to_yelp_ids.csv") as f:
+        reader = csv.reader(f)
+        header = reader.next()
+        for row in reader:
+            tr[row[0]] = row[1]
+
     restaurants = get_yelp_id(filename)
     result = []
-    for rest_id, r in restaurants.iteritems():
-        if len(r.f_stars) > 0:
-            # Possible features:
-            # Average yelp rating, concatenation of all reviews, average of previous inspection grades
-            # Count of "dirty" and/or "clean" words in reviews and/or tags
+    with open(filename) as f:
+        reader = csv.reader(f)
+        headers = reader.next()
+        for row in reader:
+            rest_id = row[2]
+            r = restaurants[tr[rest_id]]
+            date = row[1]
+            tag = r.f_stars[r.f_dates.index(date)]
+
             avg_rating = sum(r.y_star) / float(len(r.y_star))
             yelp_reviews = "\n".join(r.reviews)
             grades = [map(lambda x: x[i], r.f_stars) for i in range(3)]  # list of lists of number of stars
@@ -55,12 +73,13 @@ def get_data(filename = "yelp/data/train_labels.csv"):
 
             features = {
                 "avg_rating": avg_rating,
-                "reviews": yelp_reviews,
+                #"reviews": yelp_reviews,
                 "avg_one_star_grades": avg_grades[0],
                 "avg_two_star_grades": avg_grades[1],
-                "avg_three_star_grades": avg_grades[2]
+                "avg_three_star_grades": avg_grades[2],
+                #"rest_id": rest_id,
+                "date": date
             }
-            tag = r.f_stars[-1] # Use the last grade as the tag
             result.append((features, tag))
     return result
 
@@ -68,7 +87,7 @@ def get_test_data():
     return get_data(filename = "yelp/data/SubmissionFormat.csv")
 
 def print_results(results):
-    with open("yelp/data/train_labels.csv") as f:
+    with open("yelp/data/SubmissionFormat.csv") as f:
         with open("out.csv", "w") as o:
             reader = csv.reader(f)
             out = csv.writer(o)
