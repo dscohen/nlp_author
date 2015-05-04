@@ -1,34 +1,45 @@
+import argparse
+
 from nltk.classify import SklearnClassifier
 from sklearn.naive_bayes import MultinomialNB
-from sklearn.svm import svm
+from sklearn import svm
 from sklearn.linear_model import SGDClassifier
+
+import nltk.classify
+import yelp.start
+import slate
+import blog
+import amazon
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-s", "--source",    choices=["slate", "amazon", "blog"],
+    parser.add_argument("-s", "--source",    choices=["slate", "amazon", "blog", "yelp"],
         required=True, help="Source to use for training")
     parser.add_argument("-a", "--algorithm", choices=["bayes", "svm", "lsvc"],
         required=True, help="Machine learning algorithm")
     args = parser.parse_args()
 
     if args.source == "slate":
-        data = slate_data.get_data()
-    if args.source == "yelp":
-        data = yelp_data.get_data()
-    if args.source == "amazon":
-        data = amazon_data.get_data()
-    if args.source == "blog":
-        data = blog_data.get_data()
-
-    test_data = data[1]
-    train_data = data[0]
+        data = slate.get_data()
+    elif args.source == "yelp":
+        data = yelp.start.get_data()
+    elif args.source == "amazon":
+        data = amazon.get_data()
+    elif args.source == "blog":
+        data = blog.get_data()
 
     if args.algorithm == "bayes":
-        classif = SklearnClassifier(MultinomialNB()).train(train_data)
-    if args.algorithm == "svm":
-        classif = SklearnClassifier(SGDClassifier(loss='hinge', penalty='l2', alpha=1e-3, n_iter=5, random_state=42)).train(train_data)
-    if args.algorithm == "lsvc":
-        classif = SklearnClassifier(svm.LinearSVC()).train(train_data)
-    classif.classify_many(test_data)
+        classif = SklearnClassifier(MultinomialNB())
+    elif args.algorithm == "svm":
+        classif = SklearnClassifier(SGDClassifier(loss='hinge', penalty='l2', alpha=1e-3, n_iter=5, random_state=42))
+    elif args.algorithm == "lsvc":
+        classif = SklearnClassifier(svm.LinearSVC())
+
+    pct_train = .7
+    num_train = int(len(data) * pct_train)
+    train_set, test_set = data[:num_train], data[num_train:]
+
+    classif = classif.train(train_set)
+    print "Accuracy:", nltk.classify.accuracy(classif, test_set)
 
 
