@@ -42,7 +42,7 @@ def dot(v1, v2):
     return sum([x*y for x, y in zip(v1, v2)])
 
 def rmsle(results, test_set):
-    W = [1, 2, 3]
+    W = [2, 3, 4]
     result = sum([(math.log(dot(W, l) + 1) - math.log(dot(W, r) + 1))**2
         for ((fs, l), r) in zip(test_set, results)])
     result = (result / len(results)) ** .5

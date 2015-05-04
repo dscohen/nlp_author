@@ -46,9 +46,10 @@ def get_data():
         if len(r.f_stars) > 0:
             # Possible features:
             # Average yelp rating, concatenation of all reviews, average of previous inspection grades
+            # Count of "dirty" and/or "clean" words in reviews and/or tags
             avg_rating = sum(r.y_star) / float(len(r.y_star))
             yelp_reviews = "\n".join(r.reviews)
-            grades = [map(lambda x: x[i], r.f_stars[:-1]) for i in range(3)]  # list of lists of number of stars
+            grades = [map(lambda x: x[i], r.f_stars) for i in range(3)]  # list of lists of number of stars
             if len(grades[0]) == 0 and len(grades[1]) == 0 and len(grades[2]) == 0:
                 avg_grades = [0, 0, 0]
             else:
