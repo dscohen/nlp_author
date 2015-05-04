@@ -49,7 +49,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--algorithm", choices=["bayes", "svm", "lsvc", "gboost", "ridge"],
         required=True, help="Machine learning algorithm")
-    parser.add_argument("-s", "--submit",    default=False, action='store_true')
+    parser.add_argument("-s", "--submit", default=False, action='store_true',
+        help="Whether to train and test on subsets or prepare a submission")
     args = parser.parse_args()
 
     sparse = True
