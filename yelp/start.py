@@ -12,7 +12,7 @@ class Restaurant:
         self.reviews = []
         self.rev_dates = []
 
-def read_r_id_to_y_id(filename="yelp/data/train_labels.csv"):
+def read_r_id_to_y_id(filename):
     yelp_rest = {}
     tr = {}
     with open("yelp/data/restaurant_ids_to_yelp_ids.csv") as f:
@@ -23,7 +23,7 @@ def read_r_id_to_y_id(filename="yelp/data/train_labels.csv"):
             tr[row[0]] = row[1]
     return tr, yelp_rest
 
-def get_yelp_id(filename):
+def get_yelp_id(filename="yelp/data/train_labels.csv"):
     '''returns dict of yelp_id -> Restaurant class'''
     tr, yelp_rest = read_r_id_to_y_id()
     with open(filename) as f:
