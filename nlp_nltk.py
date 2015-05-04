@@ -1,9 +1,10 @@
 import argparse
 
 from nltk.classify import SklearnClassifier
-from sklearn.naive_bayes import MultinomialNB
 from sklearn import svm
+from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.linear_model import SGDClassifier
+from sklearn.naive_bayes import MultinomialNB
 
 import nltk.classify
 import yelp.start
@@ -15,7 +16,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--source",    choices=["slate", "amazon", "blog", "yelp"],
         required=True, help="Source to use for training")
-    parser.add_argument("-a", "--algorithm", choices=["bayes", "svm", "lsvc"],
+    parser.add_argument("-a", "--algorithm", choices=["bayes", "svm", "lsvc", "gboost"],
         required=True, help="Machine learning algorithm")
     args = parser.parse_args()
 
@@ -34,6 +35,8 @@ if __name__ == "__main__":
         classif = SklearnClassifier(SGDClassifier(loss='hinge', penalty='l2', alpha=1e-3, n_iter=5, random_state=42))
     elif args.algorithm == "lsvc":
         classif = SklearnClassifier(svm.LinearSVC())
+    elif args.algorithm == "gboost":
+        classif = SklearnClassifier(GradientBoostingClassifier(), sparse=False)
 
     pct_train = .7
     num_train = int(len(data) * pct_train)
