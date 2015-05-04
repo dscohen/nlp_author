@@ -3,7 +3,7 @@ import argparse
 from nltk.classify import SklearnClassifier
 from sklearn import svm
 from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.linear_model import SGDClassifier
+from sklearn.linear_model import SGDClassifier, Ridge
 from sklearn.naive_bayes import MultinomialNB
 
 import nltk.classify
@@ -16,7 +16,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--source",    choices=["slate", "amazon", "blog", "yelp"],
         required=True, help="Source to use for training")
-    parser.add_argument("-a", "--algorithm", choices=["bayes", "svm", "lsvc", "gboost"],
+    parser.add_argument("-a", "--algorithm", choices=["bayes", "svm", "lsvc", "gboost", "ridge"],
         required=True, help="Machine learning algorithm")
     args = parser.parse_args()
 
@@ -37,6 +37,8 @@ if __name__ == "__main__":
         classif = SklearnClassifier(svm.LinearSVC())
     elif args.algorithm == "gboost":
         classif = SklearnClassifier(GradientBoostingClassifier(), sparse=False)
+    elif args.algorithm == "ridge":
+        classif = SklearnClassifier(Ridge())
 
     pct_train = .7
     num_train = int(len(data) * pct_train)
