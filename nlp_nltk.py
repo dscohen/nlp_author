@@ -54,6 +54,7 @@ if __name__ == "__main__":
         required=True, help="Source to use for training")
     parser.add_argument("-a", "--algorithm", choices=["bayes", "svm", "lsvc", "gboost", "ridge"],
         required=True, help="Machine learning algorithm")
+    parser.add_argument("-S", "--submit",    default=False, action='store_true')
     args = parser.parse_args()
 
     sparse = True
@@ -79,14 +80,20 @@ if __name__ == "__main__":
     elif args.algorithm == "ridge":
         classif = Ridge()
 
-    pct_train = .7
-    num_train = int(len(data) * pct_train)
-    train_set, test_set = data[:num_train], data[num_train:]
-
     vectorizer = DictVectorizer(dtype=float, sparse=sparse)
 
-    classif = train(classif, vectorizer, train_set, sparse)
-    results = classify_many(classif, vectorizer, test_set)
+    if args.submit:
+        classif = train(classif, vectorizer, data, sparse)
+        test_set = yelp.start.get_test_data()
+        results = classify_many(classif, vectorizer, test_set)
+        yelp.start.print_results(results)
+    else:
+        pct_train = .7
+        num_train = int(len(data) * pct_train)
+        train_set, test_set = data[:num_train], data[num_train:]
 
-    print "Perfect Accuracy:", accuracy(results, test_set)
-    print "Weighted RMSLE:", rmsle(results, test_set)
+        classif = train(classif, vectorizer, train_set, sparse)
+        results = classify_many(classif, vectorizer, test_set)
+
+        print "Perfect Accuracy:", accuracy(results, test_set)
+        print "Weighted RMSLE:", rmsle(results, test_set)

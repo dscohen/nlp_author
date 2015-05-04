@@ -1,7 +1,5 @@
 import csv
 
-
-
 class Restaurant:
     def __init__(self, rest_id):
         self.rest_id = rest_id
@@ -11,7 +9,7 @@ class Restaurant:
         self.reviews = []
         self.rev_dates = []
 
-def get_yelp_id():
+def get_yelp_id(filename):
     '''returns dict of yelp_id -> Restaurant class'''
     yelp_rest = {}
     tr = {}
@@ -21,7 +19,7 @@ def get_yelp_id():
         for row in reader:
             yelp_rest[row[1]] = Restaurant(row[0])
             tr[row[0]] = row[1]
-    with open("yelp/data/train_labels.csv") as f:
+    with open(filename) as f:
         reader = csv.reader(f)
         header = reader.next()
         for row in reader:
@@ -38,9 +36,9 @@ def get_yelp_id():
 
     return yelp_rest
 
-def get_data():
+def get_data(filename = "yelp/data/train_labels.csv"):
     "Build a list of tuples of the form (features, tag) for the Yelp data."
-    restaurants = get_yelp_id()
+    restaurants = get_yelp_id(filename)
     result = []
     for rest_id, r in restaurants.iteritems():
         if len(r.f_stars) > 0:
@@ -65,6 +63,20 @@ def get_data():
             tag = r.f_stars[-1] # Use the last grade as the tag
             result.append((features, tag))
     return result
+
+def get_test_data():
+    return get_data(filename = "yelp/data/SubmissionFormat.csv")
+
+def print_results(results):
+    with open("yelp/data/train_labels.csv") as f:
+        with open("out.csv", "w") as o:
+            reader = csv.reader(f)
+            out = csv.writer(o)
+            header = reader.next()
+
+            for result, row in zip(results, reader):
+                row[3], row[4], row[5] = int(result[0]), int(result[1]), int(result[2])
+                out.writerow(row)
 
 if __name__ == "__main__":
     yelp_to_b = read_yelp_to_b()
