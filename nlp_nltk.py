@@ -12,9 +12,6 @@ from sklearn.linear_model import SGDClassifier, Ridge
 from sklearn.naive_bayes import MultinomialNB
 
 import yelp.start
-import slate
-import blog
-import amazon
 
 def train(classif, vectorizer, train_set, sparse):
     X, y = list(compat.izip(*train_set))
@@ -50,23 +47,14 @@ def rmsle(results, test_set):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-s", "--source",    choices=["slate", "amazon", "blog", "yelp"],
-        required=True, help="Source to use for training")
     parser.add_argument("-a", "--algorithm", choices=["bayes", "svm", "lsvc", "gboost", "ridge"],
         required=True, help="Machine learning algorithm")
-    parser.add_argument("-S", "--submit",    default=False, action='store_true')
+    parser.add_argument("-s", "--submit",    default=False, action='store_true')
     args = parser.parse_args()
 
     sparse = True
 
-    if args.source == "slate":
-        data = slate.get_data()
-    elif args.source == "yelp":
-        data = yelp.start.get_data()
-    elif args.source == "amazon":
-        data = amazon.get_data()
-    elif args.source == "blog":
-        data = blog.get_data()
+    data = yelp.start.get_data()
 
     if args.algorithm == "bayes":
         classif = MultinomialNB()
