@@ -26,7 +26,7 @@ def classify_many(classif, vectorizer, featuresets, round = True):
     X, _ = list(compat.izip(*featuresets))
     X = vectorizer.transform(X)
     results = classif.predict(X)
-    results = [numpy.round_(x) for x in results]
+    results = [numpy.round_(x).clip(0) for x in results]
     return results
 
 # See http://www.nltk.org/_modules/nltk/classify/util.html
