@@ -1,4 +1,5 @@
 import argparse
+import math
 import numpy
 import nltk.classify
 
@@ -36,6 +37,16 @@ def accuracy(results, test_set):
         return float(sum(correct))/len(correct)
     else:
         return 0
+
+def dot(v1, v2):
+    return sum([x*y for x, y in zip(v1, v2)])
+
+def rmsle(results, test_set):
+    W = [1, 2, 3]
+    result = sum([(math.log(dot(W, l) + 1) - math.log(dot(W, r) + 1))**2
+        for ((fs, l), r) in zip(test_set, results)])
+    result = (result / len(results)) ** .5
+    return result
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -78,3 +89,4 @@ if __name__ == "__main__":
     results = classify_many(classif, vectorizer, test_set)
 
     print "Perfect Accuracy:", accuracy(results, test_set)
+    print "Weighted RMSLE:", rmsle(results, test_set)
