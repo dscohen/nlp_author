@@ -27,7 +27,7 @@ def classify_many(classif, vectorizer, featuresets, round = True):
 # See http://www.nltk.org/_modules/nltk/classify/util.html
 def accuracy(results, test_set):
     correct = [l == r for ((fs, l), r) in zip(test_set, results)]
-    correct = [x[0] and x[1] and x[2] for x in correct]
+    #correct = [x[0] and x[1] and x[2] for x in correct]
     if correct:
         return float(sum(correct))/len(correct)
     else:
@@ -47,7 +47,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--algorithm", choices=["bayes", "svm", "lsvc", "gboost", "ridge"],
         required=True, help="Machine learning algorithm")
-    parser.add_argument("-f", "--feature", choices=["word2vec","doc2vec","tfidf"],
+    parser.add_argument("-f", "--feature", choices=["word2vec","doc2vec"],
         required=False, help="Machine learning algorithm")
     parser.add_argument("-s", "--submit", default=False, action='store_true',
         help="Whether or not to prepare a submission (default = False)")
@@ -55,7 +55,6 @@ if __name__ == "__main__":
 
     sparse = True
 
-    data = yelp.start.get_data(embedding = args.feature)
 
     if args.algorithm == "bayes":
         classif = MultinomialNB()
@@ -71,18 +70,24 @@ if __name__ == "__main__":
 
     vectorizer = DictVectorizer(dtype=float, sparse=sparse)
 
-    if args.submit:
-        classif = train(classif, vectorizer, data, sparse)
-        test_set = yelp.start.get_test_data()
-        results = classify_many(classif, vectorizer, test_set)
-        yelp.start.print_results(results)
-    else:
-        pct_train = .8
-        num_train = int(len(data) * pct_train)
-        train_set, test_set = data[:num_train], data[num_train:]
-
-        classif = train(classif, vectorizer, train_set, sparse)
-        results = classify_many(classif, vectorizer, test_set)
-
-        print "Perfect Accuracy:", accuracy(results, test_set)
-        print "Weighted RMSLE:", rmsle(results, test_set)
+    datas = yelp.start.get_data(embedding = args.feature)
+    results = []
+    for stars in xrange(3):
+        f = lambda x: [x[0],x[1][stars]]
+        data = map(f,datas)
+        if args.submit:
+            classif = train(classif, vectorizer, data, sparse)
+            test_set = yelp.start.get_test_data()
+            results.append(classify_many(classif, vectorizer, test_set))
+            yelp.start.print_results(results)
+        else:
+            pct_train = .8
+            num_train = int(len(data) * pct_train)
+            train_set, test_set = data[:num_train], datas[num_train:]
+            classif = train(classif, vectorizer, train_set, sparse)
+            results.append(classify_many(classif, vectorizer, test_set))
+    numpy.asarray(results)
+    results = numpy.transpose(results)
+    results = results.tolist()
+    print "Perfect Accuracy:", accuracy(results, test_set)
+    print "Weighted RMSLE:", rmsle(results, test_set)

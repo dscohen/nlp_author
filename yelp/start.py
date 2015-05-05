@@ -2,6 +2,7 @@ import csv
 import gensim
 from nltk import word_tokenize
 import numpy as np
+from sklearn import feature_extraction
 
 class Restaurant:
     def __init__(self, rest_id):
@@ -43,7 +44,7 @@ def get_yelp_id(filename="yelp/data/train_labels.csv"):
 
     return yelp_rest
 
-def get_data(filename = "yelp/data/train_labels.csv", embedding = False):
+def get_data(filename = "yelp/data/train_labels.csv",embedding = False):
     "Build a list of tuples of the form (features, tag) for the Yelp data."
 
     # Possible features:
@@ -56,6 +57,7 @@ def get_data(filename = "yelp/data/train_labels.csv", embedding = False):
 
     restaurants = get_yelp_id(filename)
     result = []
+    corpus = []
     with open(filename) as f:
         reader = csv.reader(f)
         headers = reader.next()
@@ -67,7 +69,10 @@ def get_data(filename = "yelp/data/train_labels.csv", embedding = False):
 
             avg_rating = sum(r.y_star) / float(len(r.y_star))
             yelp_reviews = "\n".join(r.reviews)
-            if embedding == False:
+            if embedding != None:
+                print embedding
+                if embedding == "tfidf":
+                    corpus.append(yelp_reviews)
                 if embedding == "word2vec":
                     yelp_embeddings = []
                     yelp_tokens = word_tokenize(yelp_reviews.decode('utf-8'))
@@ -88,7 +93,7 @@ def get_data(filename = "yelp/data/train_labels.csv", embedding = False):
 
             features = {
                 "avg_rating": avg_rating,
-                #"reviews": yelp_reviews,
+                "reviews": yelp_reviews,
                 "avg_one_star_grades": avg_grades[0],
                 "avg_two_star_grades": avg_grades[1],
                 "avg_three_star_grades": avg_grades[2],
@@ -96,6 +101,12 @@ def get_data(filename = "yelp/data/train_labels.csv", embedding = False):
                 "date": date
             }
             result.append((features, tag))
+    if embedding == "tfidf":
+        tfidf_transformer = TfidfTransformer()
+        count_vect = CountVectorizer()
+        corpus_counts = count_vect.fit_transform(corpus)
+        corpus_tfdf = tfidf_transformer.fit_transform(corpus)
+
     return result
 
 def get_test_data():
