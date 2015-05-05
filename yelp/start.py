@@ -25,7 +25,7 @@ def read_r_id_to_y_id(filename):
 
 def get_yelp_id(filename="yelp/data/train_labels.csv"):
     '''returns dict of yelp_id -> Restaurant class'''
-    tr, yelp_rest = read_r_id_to_y_id()
+    tr, yelp_rest = read_r_id_to_y_id(filename)
     with open(filename) as f:
         reader = csv.reader(f)
         header = reader.next()
@@ -52,7 +52,7 @@ def get_data(filename = "yelp/data/train_labels.csv", embedding = False):
     # Restaurant ID, Date of inspection
 
     # Tag: result of inspection on above date
-    tr, _ = read_r_id_to_y_id()
+    tr, _ = read_r_id_to_y_id(filename)
 
     restaurants = get_yelp_id(filename)
     result = []
