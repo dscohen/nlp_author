@@ -47,7 +47,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--algorithm", choices=["bayes", "svm", "lsvc", "gboost", "ridge"],
         required=True, help="Machine learning algorithm")
-    parser.add_argument("-f", "--feature", choices=["word2vec","doc2vec"],
+    parser.add_argument("-f", "--feature", choices=["word2vec","doc2vec","tfidf"],
         required=False, help="Machine learning algorithm")
     parser.add_argument("-s", "--submit", default=False, action='store_true',
         help="Whether or not to prepare a submission (default = False)")
