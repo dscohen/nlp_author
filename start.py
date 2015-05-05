@@ -47,13 +47,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--algorithm", choices=["bayes", "svm", "lsvc", "gboost", "ridge"],
         required=True, help="Machine learning algorithm")
+    parser.add_argument("-f", "--feature", choices=["word2vec","doc2vec"],
+        required=True, help="Machine learning algorithm")
     parser.add_argument("-s", "--submit", default=False, action='store_true',
         help="Whether or not to prepare a submission (default = False)")
     args = parser.parse_args()
 
     sparse = True
 
-    data = yelp.start.get_data()
+    data = yelp.start.get_data(embedding = args.feature)
 
     if args.algorithm == "bayes":
         classif = MultinomialNB()

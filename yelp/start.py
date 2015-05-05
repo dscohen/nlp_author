@@ -67,15 +67,19 @@ def get_data(filename = "yelp/data/train_labels.csv", embedding = False):
 
             avg_rating = sum(r.y_star) / float(len(r.y_star))
             yelp_reviews = "\n".join(r.reviews)
-            if embedding != False:
-                yelp_embeddings = []
-                yelp_tokens = word_tokenize(yelp_reviews.decode('utf-8'))
-                model = gensim.models.Word2Vec.load("yelp/word2vecmodel")
-                for token in yelp_tokens:
-                    try:
-                        yelp_embeddings.append(model[token])
-                    except: Exception
-	        yelp_reviews = np.asarray(yelp_embeddings)
+            if embedding == False:
+                if embedding == "word2vec":
+                    yelp_embeddings = []
+                    yelp_tokens = word_tokenize(yelp_reviews.decode('utf-8'))
+                    model = gensim.models.Word2Vec.load("yelp/word2vecmodel")
+                    for token in yelp_tokens:
+                        try:
+                            yelp_embeddings.append(model[token])
+                        except: Exception
+                if embedding == "doc2vec":
+                    model = gensim.models.Word2Vec.load("yelp/doc2vecmodel")
+                    yelp_embeddings = model[r.rest_id]
+                yelp_reviews = np.asarray(yelp_embeddings)
             grades = [map(lambda x: x[i], r.f_stars) for i in range(3)]  # list of lists of number of stars
             if len(grades[0]) == 0 and len(grades[1]) == 0 and len(grades[2]) == 0:
                 avg_grades = [0, 0, 0]
