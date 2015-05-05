@@ -58,6 +58,10 @@ def get_data(filename = "yelp/data/train_labels.csv",embedding = False):
     restaurants = get_yelp_id(filename)
     result = []
     corpus = []
+    if embedding == "doc2vec":
+        model = gensim.models.Word2Vec.load("yelp/doc2vecmodel")
+    if embedding == "word2vec":
+        model = gensim.models.Word2Vec.load("yelp/word2vecmodel")
     with open(filename) as f:
         reader = csv.reader(f)
         headers = reader.next()
@@ -75,14 +79,12 @@ def get_data(filename = "yelp/data/train_labels.csv",embedding = False):
                 elif embedding == "word2vec":
                     yelp_embeddings = []
                     yelp_tokens = word_tokenize(yelp_reviews.decode('utf-8'))
-                    model = gensim.models.Word2Vec.load("yelp/word2vecmodel")
                     for token in yelp_tokens:
                         try:
                             yelp_embeddings.append(model[token])
                         except: Exception
                     yelp_reviews = np.asarray(yelp_embeddings)
                 elif embedding == "doc2vec":
-                    model = gensim.models.Word2Vec.load("yelp/doc2vecmodel")
                     yelp_embeddings = model[r.rest_id]
                     yelp_reviews = np.asarray(yelp_embeddings)
             grades = [map(lambda x: x[i], r.f_stars) for i in range(3)]  # list of lists of number of stars
