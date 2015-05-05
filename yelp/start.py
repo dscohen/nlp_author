@@ -69,7 +69,7 @@ def get_data(filename = "yelp/data/train_labels.csv",embedding = False):
 
             avg_rating = sum(r.y_star) / float(len(r.y_star))
             yelp_reviews = "\n".join(r.reviews)
-            if embedding != None:
+            if embedding:
                 #print embedding
                 if embedding == "tfidf":
                     corpus.append(yelp_reviews)
