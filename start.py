@@ -85,9 +85,10 @@ if __name__ == "__main__":
             num_train = int(len(data) * pct_train)
             train_set, test_set = data[:num_train], datas[num_train:]
             classif = train(classif, vectorizer, train_set, sparse)
-            results.append(classify_many(classif, vectorizer, test_set))
-    numpy.asarray(results)
-    results = numpy.transpose(results)
-    results = results.tolist()
-    print "Perfect Accuracy:", accuracy(results, test_set)
-    print "Weighted RMSLE:", rmsle(results, test_set)
+            results = classify_many(classif, vectorizer, test_set)
+            # Can only measure accuracy when testing, not submitting.
+            numpy.asarray(results)
+            results = numpy.transpose(results)
+            results = results.tolist()
+            print "Perfect Accuracy:", accuracy(results, test_set)
+            print "Weighted RMSLE:", rmsle(results, test_set)
