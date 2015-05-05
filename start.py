@@ -27,7 +27,6 @@ def classify_many(classif, vectorizer, featuresets, round = True):
 # See http://www.nltk.org/_modules/nltk/classify/util.html
 def accuracy(results, test_set):
     correct = [l == r for ((fs, l), r) in zip(test_set, results)]
-    #correct = [x[0] and x[1] and x[2] for x in correct]
     if correct:
         return float(sum(correct))/len(correct)
     else:
@@ -79,15 +78,19 @@ if __name__ == "__main__":
             classif = train(classif, vectorizer, data, sparse)
             test_set = yelp.start.get_test_data()
             results.append(classify_many(classif, vectorizer, test_set))
-            yelp.start.print_results(results)
         else:
             pct_train = .8
             num_train = int(len(data) * pct_train)
             train_set, test_set = data[:num_train], datas[num_train:]
             classif = train(classif, vectorizer, train_set, sparse)
             results.append(classify_many(classif, vectorizer, test_set))
-    numpy.asarray(results)
+    results = numpy.asarray(results)
     results = numpy.transpose(results)
     results = results.tolist()
-    print "Perfect Accuracy:", accuracy(results, test_set)
-    print "Weighted RMSLE:", rmsle(results, test_set)
+
+    # Can only measure accuracy when testing, not submitting.
+    if args.submit:
+        yelp.start.print_results(results)
+    else:
+        print "Perfect Accuracy:", accuracy(results, test_set)
+        print "Weighted RMSLE:", rmsle(results, test_set)

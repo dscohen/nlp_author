@@ -69,10 +69,10 @@ def get_data(filename = "yelp/data/train_labels.csv",embedding = False):
 
             avg_rating = sum(r.y_star) / float(len(r.y_star))
             yelp_reviews = "\n".join(r.reviews)
-            if embedding != None:
+            if embedding:
                 if embedding == "tfidf":
                     corpus.append(yelp_reviews)
-                if embedding == "word2vec":
+                elif embedding == "word2vec":
                     yelp_embeddings = []
                     yelp_tokens = word_tokenize(yelp_reviews.decode('utf-8'))
                     model = gensim.models.Word2Vec.load("yelp/word2vecmodel")
@@ -81,8 +81,7 @@ def get_data(filename = "yelp/data/train_labels.csv",embedding = False):
                             yelp_embeddings.append(model[token])
                         except: Exception
                     yelp_reviews = np.asarray(yelp_embeddings)
-                if embedding == "doc2vec":
-                    yelp_embeddings = []
+                elif embedding == "doc2vec":
                     model = gensim.models.Word2Vec.load("yelp/doc2vecmodel")
                     yelp_embeddings = model[r.rest_id]
                     yelp_reviews = np.asarray(yelp_embeddings)
