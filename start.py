@@ -71,14 +71,13 @@ if __name__ == "__main__":
     vectorizer = DictVectorizer(dtype=float, sparse=sparse)
 
     datas = yelp.start.get_data(embedding = args.feature)
-    results = []
     for stars in xrange(3):
         f = lambda x: [x[0],x[1][stars]]
         data = map(f,datas)
         if args.submit:
             classif = train(classif, vectorizer, data, sparse)
             test_set = yelp.start.get_test_data()
-            results.append(classify_many(classif, vectorizer, test_set))
+            results = classify_many(classif, vectorizer, test_set)
             yelp.start.print_results(results)
         else:
             pct_train = .8
