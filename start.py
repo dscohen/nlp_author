@@ -24,13 +24,16 @@ def classify_many(classif, vectorizer, featuresets, round = True):
     results = [numpy.round_(x).clip(0) for x in results]
     return results
 
+def average(l):
+    return float(sum(l))/len(l)
+
 # See http://www.nltk.org/_modules/nltk/classify/util.html
 def accuracy(results, test_set):
-    correct = [l == r for ((fs, l), r) in zip(test_set, results)]
-    if correct:
-        return float(sum(correct))/len(correct)
-    else:
-        return 0
+    equal = [[l[0] == r[0], l[1] == r[1], l[2] == r[2]]
+        for ((fs, l), r) in zip(test_set, results)]
+    correct = [x[0] and x[1] and x[2] for x in equal]
+    sub_correct = [[x[i] for x in equal] for i in range(3)]
+    return (average(correct), average(sub_correct[0]), average(sub_correct[1]), average(sub_correct[2]))
 
 def dot(v1, v2):
     return sum([x*y for x, y in zip(v1, v2)])
@@ -92,5 +95,6 @@ if __name__ == "__main__":
     if args.submit:
         yelp.start.print_results(results)
     else:
-        print "Perfect Accuracy:", accuracy(results, test_set)
+        accuracy = accuracy(results, test_set)
+        print "Perfect Accuracy: %.3f (%.3f, %.3f, %.3f)" % accuracy
         print "Weighted RMSLE:", rmsle(results, test_set)
