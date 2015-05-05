@@ -2,6 +2,7 @@ import csv
 import gensim
 from nltk import word_tokenize
 import numpy as np
+from sklearn.feature_extraction import text
 
 class Restaurant:
     def __init__(self, rest_id):
@@ -43,7 +44,7 @@ def get_yelp_id(filename="yelp/data/train_labels.csv"):
 
     return yelp_rest
 
-def get_data(filename = "yelp/data/train_labels.csv", embedding = False):
+def get_data(filename = "yelp/data/train_labels.csv",embedding = False):
     "Build a list of tuples of the form (features, tag) for the Yelp data."
 
     # Possible features:
@@ -56,6 +57,7 @@ def get_data(filename = "yelp/data/train_labels.csv", embedding = False):
 
     restaurants = get_yelp_id(filename)
     result = []
+    corpus = []
     with open(filename) as f:
         reader = csv.reader(f)
         headers = reader.next()
@@ -67,8 +69,10 @@ def get_data(filename = "yelp/data/train_labels.csv", embedding = False):
 
             avg_rating = sum(r.y_star) / float(len(r.y_star))
             yelp_reviews = "\n".join(r.reviews)
-            if embedding == False:
-                if embedding == "word2vec":
+            if embedding:
+                if embedding == "tfidf":
+                    corpus.append(yelp_reviews)
+                elif embedding == "word2vec":
                     yelp_embeddings = []
                     yelp_tokens = word_tokenize(yelp_reviews.decode('utf-8'))
                     model = gensim.models.Word2Vec.load("yelp/word2vecmodel")
@@ -76,10 +80,11 @@ def get_data(filename = "yelp/data/train_labels.csv", embedding = False):
                         try:
                             yelp_embeddings.append(model[token])
                         except: Exception
-                if embedding == "doc2vec":
+                    yelp_reviews = np.asarray(yelp_embeddings)
+                elif embedding == "doc2vec":
                     model = gensim.models.Word2Vec.load("yelp/doc2vecmodel")
                     yelp_embeddings = model[r.rest_id]
-                yelp_reviews = np.asarray(yelp_embeddings)
+                    yelp_reviews = np.asarray(yelp_embeddings)
             grades = [map(lambda x: x[i], r.f_stars) for i in range(3)]  # list of lists of number of stars
             if len(grades[0]) == 0 and len(grades[1]) == 0 and len(grades[2]) == 0:
                 avg_grades = [0, 0, 0]
@@ -88,7 +93,7 @@ def get_data(filename = "yelp/data/train_labels.csv", embedding = False):
 
             features = {
                 "avg_rating": avg_rating,
-                #"reviews": yelp_reviews,
+                "reviews": yelp_reviews,
                 "avg_one_star_grades": avg_grades[0],
                 "avg_two_star_grades": avg_grades[1],
                 "avg_three_star_grades": avg_grades[2],
@@ -96,6 +101,14 @@ def get_data(filename = "yelp/data/train_labels.csv", embedding = False):
                 "date": date
             }
             result.append((features, tag))
+    if embedding == "tfidf":
+        tfidf_transformer = text.TfidfTransformer()
+        count_vect = text.CountVectorizer()
+        corpus_counts = count_vect.fit_transform(corpus)
+        corpus_tfidf = tfidf_transformer.fit_transform(corpus)
+        for entry in result:
+            entry["reviews"] = tfidf_transformer.transform(count_vect(entry["reviews"]))
+
     return result
 
 def get_test_data():
