@@ -85,8 +85,10 @@ def get_data(filename = "yelp/data/train_labels.csv",embedding = False):
                         except: Exception
                     yelp_reviews = np.asarray(yelp_embeddings)
                 elif embedding == "doc2vec":
-                    yelp_embeddings = model[r.rest_id]
-                    yelp_reviews = np.asarray(yelp_embeddings)
+                    rev_vector = embedding_dict(model[r.rest_id])
+                    #made empty to make cleaner code, I don't think it should impact results
+                    yelp_reviews = "a"
+
             grades = [map(lambda x: x[i], r.f_stars) for i in range(3)]  # list of lists of number of stars
             if len(grades[0]) == 0 and len(grades[1]) == 0 and len(grades[2]) == 0:
                 avg_grades = [0, 0, 0]
@@ -102,6 +104,8 @@ def get_data(filename = "yelp/data/train_labels.csv",embedding = False):
                 #"rest_id": rest_id,
                 "date": date
             }
+            if embedding == "doc2vec":
+                features = merge(features,rev_vector)
             result.append((features, tag))
     if embedding == "tfidf":
         tfidf_transformer = text.TfidfTransformer()
@@ -112,6 +116,19 @@ def get_data(filename = "yelp/data/train_labels.csv",embedding = False):
             entry["reviews"] = tfidf_transformer.transform(count_vect(entry["reviews"]))
 
     return result
+
+def merge(x,y):
+    '''Given two dicts, merge them into a new dict as a shallow copy.'''
+    z = x.copy()
+    z.update(y)
+    return z
+
+def embedding_dict(vector):
+    features = {}
+    for index,value in enumerate(vector):
+        index = str(index)
+        features[index] = value
+    return features
 
 def get_test_data():
     return get_data(filename = "yelp/data/SubmissionFormat.csv")
