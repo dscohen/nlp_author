@@ -13,7 +13,7 @@ import yelp.start
 
 W = [12, 14, 16]
 
-def train(classif, vectorizer, train_set, sparse):
+def train(classif, vectorizer, train_set):
     X, y = list(compat.izip(*train_set))
     X = vectorizer.fit_transform(X)
     return classif.fit(X, y)
