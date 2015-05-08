@@ -3,6 +3,8 @@ import gensim
 from nltk import word_tokenize
 import numpy as np
 from sklearn.feature_extraction import text
+import time
+import datetime
 
 class Restaurant:
     def __init__(self, rest_id):
@@ -69,6 +71,7 @@ def get_data(filename = "yelp/data/train_labels.csv",embedding = False):
             rest_id = row[2]
             r = restaurants[tr[rest_id]]
             date = row[1]
+            unix_date = (int(time.mktime(time.strptime(date,"%Y-%m-%d"))) - 10**9)/10**5
             tag = r.f_stars[r.f_dates.index(date)]
 
             avg_rating = sum(r.y_star) / float(len(r.y_star))
@@ -113,7 +116,7 @@ def get_data(filename = "yelp/data/train_labels.csv",embedding = False):
         corpus_counts = count_vect.fit_transform(corpus)
         corpus_tfidf = tfidf_transformer.fit_transform(corpus)
         for entry in result:
-            entry["reviews"] = tfidf_transformer.transform(count_vect(entry["reviews"]))
+            features = merge(features,tfidf_transformer.transform(count_vect(entry["reviews"])))
 
     return result
 

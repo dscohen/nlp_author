@@ -6,7 +6,7 @@ from nltk import compat
 from sklearn import svm
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.feature_extraction import DictVectorizer
-from sklearn.linear_model import SGDClassifier, Ridge
+from sklearn.linear_model import SGDClassifier, Ridge, LinearRegression
 from sklearn.naive_bayes import MultinomialNB
 
 import yelp.start
@@ -47,7 +47,7 @@ def rmsle(results, test_set):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--algorithm", choices=["bayes", "svm", "lsvc", "gboost", "ridge"],
+    parser.add_argument("-a", "--algorithm", choices=["bayes", "svm", "lsvc", "gboost", "ridge","linear"],
         required=True, help="Machine learning algorithm")
     parser.add_argument("-f", "--feature", choices=["word2vec","doc2vec","tfidf"],
         required=False, help="Machine learning algorithm")
@@ -69,6 +69,8 @@ if __name__ == "__main__":
         sparse = False
     elif args.algorithm == "ridge":
         classif = Ridge()
+    elif args.algorithm == "linear":
+        classif = LinearRegression()
 
     vectorizer = DictVectorizer(dtype=float, sparse=sparse)
 
