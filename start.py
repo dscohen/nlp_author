@@ -11,6 +11,8 @@ from sklearn.naive_bayes import MultinomialNB
 
 import yelp.start
 
+W = [12, 14, 16]
+
 def train(classif, vectorizer, train_set, sparse):
     X, y = list(compat.izip(*train_set))
     X = vectorizer.fit_transform(X)
@@ -39,11 +41,22 @@ def dot(v1, v2):
     return sum([x*y for x, y in zip(v1, v2)])
 
 def rmsle(results, test_set):
-    W = [14, 16, 18]
-    result = sum([(math.log(dot(W, l) + 1) - math.log(dot(W, r) + 1))**2
-        for ((fs, l), r) in zip(test_set, results)])
-    result = (result / len(results)) ** .5
-    return result
+    result = [(math.log(dot(W, l) + 1) - math.log(dot(W, r) + 1))**2
+        for ((fs, l), r) in zip(test_set, results)]
+    return average(result) ** .5
+
+def single_rmsle(results, test_set, index):
+    result = [(math.log(W[index]*l[index]+1) - math.log(W[index]*r[index]+1))**2
+        for ((fs, l), r) in zip(test_set, results)]
+    return average(result) ** .5
+
+def metrics(results, test_set, header=False):
+    acc = accuracy(results, test_set)
+    r = rmsle(results, test_set)
+    rs = [single_rmsle(results, test_set, i) for i in range(3)]
+    if header: print "PA \t 1s A \t 2s A \t 3s A \t R \t 1s R \t 2s R \t 3s R"
+    print "%.3f \t %.3f \t %.3f \t %.3f \t %.3f \t %.3f \t %.3f \t %.3f" % \
+        (acc[0], acc[1], acc[2], acc[3], r, rs[0], rs[1], rs[2])
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -91,6 +104,4 @@ if __name__ == "__main__":
     if args.submit:
         yelp.start.print_results(results)
     else:
-        accuracy = accuracy(results, test_set)
-        print "Perfect Accuracy: %.3f (%.3f, %.3f, %.3f)" % accuracy
-        print "Weighted RMSLE:", rmsle(results, test_set)
+        metrics(results, test_set, header=True)
