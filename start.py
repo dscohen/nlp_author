@@ -50,43 +50,22 @@ def single_rmsle(results, test_set, index):
         for ((fs, l), r) in zip(test_set, results)]
     return average(result) ** .5
 
-def metrics(results, test_set, header=False):
+def metrics_header():
+    print " Algorithm \t PA \t 1s A \t 2s A \t 3s A \t R \t 1s R \t 2s R \t 3s R"
+
+def metrics(name, results, test_set, header=False):
     acc = accuracy(results, test_set)
     r = rmsle(results, test_set)
     rs = [single_rmsle(results, test_set, i) for i in range(3)]
-    if header: print "PA \t 1s A \t 2s A \t 3s A \t R \t 1s R \t 2s R \t 3s R"
-    print "%.3f \t %.3f \t %.3f \t %.3f \t %.3f \t %.3f \t %.3f \t %.3f" % \
-        (acc[0], acc[1], acc[2], acc[3], r, rs[0], rs[1], rs[2])
+    print "%10s \t %.3f \t %.3f \t %.3f \t %.3f \t %.3f \t %.3f \t %.3f \t %.3f" % \
+        (name, acc[0], acc[1], acc[2], acc[3], r, rs[0], rs[1], rs[2])
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--algorithm", choices=["bayes", "svm", "lsvc", "gboost", "ridge","linear"],
-        required=True, help="Machine learning algorithm")
-    parser.add_argument("-f", "--feature", choices=["word2vec","doc2vec","tfidf"],
-        required=False, help="Machine learning algorithm")
-    parser.add_argument("-s", "--submit", default=False, action='store_true',
-        help="Whether or not to prepare a submission (default = False)")
-    args = parser.parse_args()
-
-    if args.algorithm == "bayes":
-        classif = MultinomialNB()
-    elif args.algorithm == "svm":
-        classif = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-3, n_iter=5, random_state=42)
-    elif args.algorithm == "lsvc":
-        classif = svm.LinearSVC()
-    elif args.algorithm == "ridge":
-        classif = Ridge()
-    elif args.algorithm == "linear":
-        classif = LinearRegression()
-
-    vectorizer = DictVectorizer(dtype=float)
-
-    datas = yelp.start.get_data(embedding = args.feature)
+def run(classif, datas, vectorizer, submit = False):
     results = []
     for stars in xrange(3):
         f = lambda x: [x[0],x[1][stars]]
         data = map(f,datas)
-        if args.submit:
+        if submit:
             classif = train(classif, vectorizer, data)
             test_set = yelp.start.get_test_data()
             results.append(classify_many(classif, vectorizer, test_set))
@@ -98,10 +77,43 @@ if __name__ == "__main__":
             results.append(classify_many(classif, vectorizer, test_set))
     results = numpy.asarray(results)
     results = numpy.transpose(results)
-    results = results.tolist()
+    return results.tolist(), test_set
 
-    # Can only measure accuracy when testing, not submitting.
-    if args.submit:
-        yelp.start.print_results(results)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-a", "--algorithm", choices=["bayes", "svm", "lsvc", "ridge","linear"],
+        required=True, help="Machine learning algorithm")
+    parser.add_argument("-f", "--feature", choices=["word2vec","doc2vec","tfidf"],
+        required=False, help="Machine learning algorithm")
+    parser.add_argument("-s", "--submit", default=False, action='store_true',
+        help="Whether or not to prepare a submission (default = False)")
+    parser.add_argument("-b", "--benchmark", default=False, action="store_true",
+        help="Whether to benchmark all algorithms, ignoring -s and -a arguments (default = False)")
+    args = parser.parse_args()
+
+    vectorizer = DictVectorizer(dtype=float)
+    datas = yelp.start.get_data(embedding = args.feature)
+
+    algorithms = {
+        "bayes": MultinomialNB(),
+        "svm": SGDClassifier(loss='hinge', penalty='l2', alpha=1e-3, n_iter=5, random_state=42),
+        "lsvc": svm.LinearSVC(),
+        "ridge": Ridge(),
+        "linear": LinearRegression()
+    }
+
+    if args.benchmark:
+        metrics_header()
+        for name, classif in algorithms.iteritems():
+            results, test_set = run(classif, datas, vectorizer)
+            metrics(name, results, test_set)
     else:
-        metrics(results, test_set, header=True)
+        classif = algorithms[args.algorithm]
+        results, test_set = run(classif, datas, vectorizer, args.submit)
+
+        # Can only measure accuracy when testing, not submitting.
+        if args.submit:
+            yelp.start.print_results(results)
+        else:
+            metrics_header()
+            metrics(args.algorithm, results, test_set)
