@@ -62,9 +62,14 @@ def metrics(name, results, test_set, header=False, latex=True):
     f = l if latex else term
     print f % (name.capitalize(), acc[1], acc[2], acc[3], acc[0], rs[0], rs[1], rs[2], r)
 
-def run(classif, datas, vectorizer, submit = False):
+def run(classif, datas, vectorizer, submit = False,best=False):
     results = []
     for stars in xrange(3):
+        if best:
+            if stars == 0 or stars == 2:
+                classif = Ridge()
+            if stars == 1:
+                classif = svm.LinearSVC()
         f = lambda x: [x[0],x[1][stars]]
         data = map(f,datas)
         if submit:
@@ -85,12 +90,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--algorithm", choices=["bayes", "svm", "lsvc", "ridge","linear"],
         required=True, help="Machine learning algorithm")
-    parser.add_argument("-f", "--feature", choices=["word2vec","doc2vec","tfidf"],
+    parser.add_argument("-f", "--feature", choices=["word2vec","doc2vec"],
         required=False, help="Machine learning algorithm")
     parser.add_argument("-s", "--submit", default=False, action='store_true',
         help="Whether or not to prepare a submission (default = False)")
     parser.add_argument("-b", "--benchmark", default=False, action="store_true",
         help="Whether to benchmark all algorithms, ignoring -s and -a arguments (default = False)")
+    parser.add_argument("-o", "--optimum", default=False, action="store_true",
+        help="Run the best combination of each model for the vector")
     args = parser.parse_args()
 
     vectorizer = DictVectorizer(dtype=float)
@@ -111,7 +118,7 @@ if __name__ == "__main__":
             metrics(name, results, test_set)
     else:
         classif = algorithms[args.algorithm]
-        results, test_set = run(classif, datas, vectorizer, args.submit)
+        results, test_set = run(classif, datas, vectorizer, args.submit,args.optimum)
 
         # Can only measure accuracy when testing, not submitting.
         if args.submit:
