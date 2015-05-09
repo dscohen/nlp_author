@@ -51,14 +51,16 @@ def single_rmsle(results, test_set, index):
     return average(result) ** .5
 
 def metrics_header():
-    print " Algorithm \t PA \t 1s A \t 2s A \t 3s A \t R \t 1s R \t 2s R \t 3s R"
+    print " Algorithm \t 1s A \t 2s A \t 3s A \t PA \t 1s R \t 2s R \t 3s R \t R"
 
-def metrics(name, results, test_set, header=False):
+def metrics(name, results, test_set, header=False, latex=True):
     acc = accuracy(results, test_set)
     r = rmsle(results, test_set)
     rs = [single_rmsle(results, test_set, i) for i in range(3)]
-    print "%10s \t %.3f \t %.3f \t %.3f \t %.3f \t %.3f \t %.3f \t %.3f \t %.3f" % \
-        (name, acc[0], acc[1], acc[2], acc[3], r, rs[0], rs[1], rs[2])
+    l = "%s &%.3f&%.3f&%.3f&%.3f\\\\ \\hline\t &%.3f&%.3f&%.3f&%.3f\\\\ \\hline"
+    term = "%10s \t %.3f \t %.3f \t %.3f \t %.3f \t %.3f \t %.3f \t %.3f \t %.3f"
+    f = l if latex else term
+    print f % (name.capitalize(), acc[1], acc[2], acc[3], acc[0], rs[0], rs[1], rs[2], r)
 
 def run(classif, datas, vectorizer, submit = False):
     results = []
